@@ -7,7 +7,7 @@ mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
 mdadm --create --verbose /dev/md0 -l 5 -n 5 /dev/sd{b,c,d,e,f}
 
 # Створити папку для файла конфігурації mdadm
-mkdir /etc/mdadm
+mkdir -p /etc/mdadm
 
 # Додавання інформаціх про масив в конфігураційний файл
 echo "DEVICE partitions" > /etc/mdadm/mdadm.conf

@@ -19,11 +19,11 @@ Vagrant.configure("2") do |config|
       vb.memory = 1024
       vb.cpus = 2
       
-      file_to_disk = 'disk2.vdi'
-      unless File.exist?(file_to_disk)
+      file_to_disk1 = 'disk1.vdi'
+      unless File.exist?(file_to_disk1)
         vb.customize [
           "createhd",
-          "--filename", file_to_disk,
+          "--filename", file_to_disk1,
           "--format", "VDI",
           "--size", 1 * 1024
         ]
@@ -32,16 +32,87 @@ Vagrant.configure("2") do |config|
           '--storagectl', 'SATA Controller',
           '--port', 1, '--device', 0,
           '--type', 'hdd', '--medium',
-          file_to_disk
+          file_to_disk1
         ]
       end
+
+      file_to_disk2 = 'disk2.vdi'
+      unless File.exist?(file_to_disk2)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk2,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 2, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk2
+        ]
+      end
+
+      file_to_disk3 = 'disk3.vdi'
+      unless File.exist?(file_to_disk3)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk3,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 3, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk3
+        ]
+      end
+
+      file_to_disk4 = 'disk4.vdi'
+      unless File.exist?(file_to_disk4)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk4,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 4, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk4
+        ]
+      end
+
+      file_to_disk5 = 'disk5.vdi'
+      unless File.exist?(file_to_disk5)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk5,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 5, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk5
+        ]
+      end
+
     end
   end
 
   config.vm.provision "prov1", type: "shell", inline: <<-SHELL
-
+    sudo apt update && sudo apt upgrade -yy
+    sudo apt autoclean && sudo apt autoremove -y
+    sudo apt install -y parted mdadm smartmontools hdparm gdisk e2fsprogs nano
   SHELL
 
-  #config.vm.provision "shell", path: "raid.sh"
+  config.vm.provision "shell", path: "raid.sh"
 
 end

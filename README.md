@@ -4,11 +4,11 @@
 
 ## `Завдання`
 
-1. Додати у Vagrantfile ще дисків
-2. Зламати/відновити raid
-3. Зібрати R0/R5/R10 на вибір
-4. Прописати зібраний рейд в конфігураційний файл, щоб рейд збирався при завантаженні
-5. Створити GPT розділ та 5 partition
+1. Додати у Vagrantfile додаткові диски
+2. Зібрати R0/R5/R10 на вибір
+3. Прописати зібраний рейд в конфігураційний файл, щоб рейд збирався при завантаженні
+4. Створити GPT розділ та 5 partition
+5. Зламати/відновити raid
 
 ### `Додаткові завдання`
 
@@ -17,86 +17,10 @@
 
 ### `Вирішення`
 
-<details><summary>CentOS 7</summary><blockquote>
+Використовується `box` Debian 11 з оновленим ядром `linux-image-6.1.0-0.deb11.7` та `Virtualbox` `7.0.8`
 
-```ruby
-# -*- mode: ruby -*-
-# vim: set ft=ruby :
-
-MACHINES = {
-    :otuslinux => {
-        :box_name => "centos/7",
-        :ip_addr => '192.168.11.101',
-    :disks => {
-        :sata1 => {
-        :dfile => './sata1.vdi',
-        :size => 250,
-        :port => 1
-        },
-        :sata2 => {
-        :dfile => './sata2.vdi',
-        :size => 250,
-        :port => 2
-        },
-        :sata3 => {
-        :dfile => './sata3.vdi',
-        :size => 250,
-        :port => 3
-        },
-        :sata4 => {
-        :dfile => './sata4.vdi',
-        :size => 250,
-        :port => 4
-        },
-        :sata5 => {
-        :dfile => './sata5.vdi',
-        :size => 250,
-        :port => 5
-        },
-        }
-    },
-}
-
-Vagrant.configure("2") do |config|
-    MACHINES.each do |boxname, boxconfig|
-        config.vm.define boxname do |box|
-            box.vm.box = boxconfig[:box_name]
-            box.vm.host_name = boxname.to_s
-            box.vm.network "private_network", ip: boxconfig[:ip_addr]
-            box.vm.provider :virtualbox do |vb|
-                vb.customize ["modifyvm", :id, "--memory", "1024"]
-                needsController = false
-                boxconfig[:disks].each do |dname, dconf|
-                    unless File.exist?(dconf[:dfile])
-                        vb.customize ['createhd', '--filename', dconf[:dfile], '--variant', 'Fixed', '--size', dconf[:size]]
-                    needsController =  true
-                    end
-                end
-                if needsController == true
-                    vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata" ]
-                    boxconfig[:disks].each do |dname, dconf|
-                        vb.customize ['storageattach', :id,  '--storagectl', 'SATA', '--port', dconf[:port], '--device', 0, '--type', 'hdd', '--medium', dconf[:dfile]]
-                    end
-                end
-            end
-            box.vm.provision "prov1", type: "shell", inline: <<-SHELL
-                mkdir -p ~root/.ssh
-                cp ~vagrant/.ssh/auth* ~root/.ssh
-                yum install -y mdadm smartmontools hdparm gdisk e2fsprogs nano
-            SHELL
-            box.vm.provision "shell", path: "raid.sh"
-        end
-    end
-end
-```
 В конфігурацію Vagrantfile додані додаткові диски та прописаний шлях до скрипта який виконує сбір рейд-масиву при створенні віртуальної машини
 Необохідно розмістити raid.sh в одній директорії з Vagrantfile після чого можна виконати `vagrant up`
-
-</blockquote></details>
-
-<details><summary>Debian 11</summary><blockquote>
-
-Використовується `box` Debian11 з оновленим ядром `linux-image-6.1.0-0.deb11.7` та `Virtualbox` `7.0.8`
 
 ```ruby
 # -*- mode: ruby -*-
@@ -120,11 +44,11 @@ Vagrant.configure("2") do |config|
       vb.memory = 1024
       vb.cpus = 2
       
-      file_to_disk = 'disk2.vdi'
-      unless File.exist?(file_to_disk)
+      file_to_disk1 = 'disk1.vdi'
+      unless File.exist?(file_to_disk1)
         vb.customize [
           "createhd",
-          "--filename", file_to_disk,
+          "--filename", file_to_disk1,
           "--format", "VDI",
           "--size", 1 * 1024
         ]
@@ -133,19 +57,91 @@ Vagrant.configure("2") do |config|
           '--storagectl', 'SATA Controller',
           '--port', 1, '--device', 0,
           '--type', 'hdd', '--medium',
-          file_to_disk
+          file_to_disk1
         ]
       end
+
+      file_to_disk2 = 'disk2.vdi'
+      unless File.exist?(file_to_disk2)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk2,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 2, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk2
+        ]
+      end
+
+      file_to_disk3 = 'disk3.vdi'
+      unless File.exist?(file_to_disk3)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk3,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 3, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk3
+        ]
+      end
+
+      file_to_disk4 = 'disk4.vdi'
+      unless File.exist?(file_to_disk4)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk4,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 4, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk4
+        ]
+      end
+
+      file_to_disk5 = 'disk5.vdi'
+      unless File.exist?(file_to_disk5)
+        vb.customize [
+          "createhd",
+          "--filename", file_to_disk5,
+          "--format", "VDI",
+          "--size", 1 * 1024
+        ]
+        vb.customize [
+          'storageattach', :id,
+          '--storagectl', 'SATA Controller',
+          '--port', 5, '--device', 0,
+          '--type', 'hdd', '--medium',
+          file_to_disk5
+        ]
+      end
+
     end
   end
 
   config.vm.provision "prov1", type: "shell", inline: <<-SHELL
-
+    sudo apt update && sudo apt upgrade -yy
+    sudo apt autoclean && sudo apt autoremove -y
+    sudo apt install -y parted mdadm smartmontools hdparm gdisk e2fsprogs nano
   SHELL
 
-  #config.vm.provision "shell", path: "raid.sh"
+  config.vm.provision "shell", path: "raid.sh"
 
 end
+
 ```
 
 ## Корисні посилання
@@ -164,12 +160,6 @@ end
 
 <https://stackoverflow.com/questions/52264706/storage-attach-id-different-from-the-vagrant-customisation-id>
 
-</blockquote></details>
-
-## Корисні посилання
-
-<details><summary>Розгорнути</summary>
-
 <https://habr.com/ru/company/raidix/blog/326816/>
 
 <https://blog.open-e.com/how-does-raid-5-work/>
@@ -180,13 +170,7 @@ end
 
 <https://docs.google.com/document/d/1m4niuv-rxMbLjdQ4qS8xG-UpMlMUA8C5yKRQ3IVEi-M/edit>
 
-</details>
-
 ## Підсумки
 
-<details><summary>Розгорнути</summary>
-
-З віртуалкою на базі Debian була проблема з підключенням диска, потрібно було в `'--storagectl', 'SATA Controller',` Змінити назву контролера з `SATA` на `SATA Controller`. Назву контролера який використовує `ВМ` можнжа подивитсь після її створення (навіть невдалого) у `Virtualbox`, в налаштуваннях дисків. Іноді потрібно вказувати `IDE` або `IDE Controller`, цей параметр схоже можна контролювати на етапі створення `box`a  або це ще може залежати від операційної системи.
+З віртуалкою на базі Debian була проблема з підключенням диска, потрібно було в `'--storagectl', 'SATA Controller',` Змінити назву контролера з `SATA` на `SATA Controller`. Назву контролера який використовує `ВМ` можнжа подивитсь після її створення (навіть невдалого) у `Virtualbox`, в налаштуваннях дисків. Іноді потрібно вказувати `IDE` або `IDE Controller`, цей параметр схоже можна контролювати на етапі створення `box`a  або це може залежати від операційної системи.
 Також виникла проблема з `'--port', 1, '--device', 0,` яка вирішилась підбиранням значень `0` або `1` (в помилці була підказка)
-
-</details>
