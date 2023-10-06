@@ -3,13 +3,13 @@
 # Занулити суперблоки
 mdadm --zero-superblock --force /dev/sd{b,c,d,e,f}
 
-# Створити рейд5 із 5 дисків
+# Створити RAID5 із 5 дисків
 mdadm --create --verbose /dev/md0 -l 5 -n 5 /dev/sd{b,c,d,e,f}
 
 # Створити папку для файла конфігурації mdadm
 mkdir -p /etc/mdadm
 
-# Додавання інформаціх про масив в конфігураційний файл
+# Додавання інформації про масив в конфігураційний файл 'mdadm.conf'
 echo "DEVICE partitions" > /etc/mdadm/mdadm.conf
 mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf
 
