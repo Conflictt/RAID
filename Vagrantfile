@@ -110,7 +110,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "prov1", type: "shell", inline: <<-SHELL
     sudo apt update && sudo apt upgrade -yy
     sudo apt autoclean && sudo apt autoremove -y
-    sudo apt install -y parted mdadm smartmontools hdparm gdisk e2fsprogs nano
+    sudo apt install -y parted mdadm smartmontools hdparm gdisk e2fsprogs nano lshw rsync
   SHELL
 
   config.vm.provision "shell", path: "raid.sh"

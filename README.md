@@ -88,11 +88,22 @@ watch cat /proc/mdstat
 
 <https://blog.open-e.com/how-does-raid-5-work/>
 
-<https://github.com/erlong15/otus-linux>
-
 <https://raid.wiki.kernel.org/index.php/A_guide_to_mdadm>
 
 <https://www.linuxquestions.org/questions/linux-server-73/desperately-trying-to-setup-a-new-raid5-4175628173/>
+
+
+Для переносу системи на рейд1
+
+<https://www.clouvider.com/knowledge_base/converting-from-single-disk-to-raid-1-on-ubuntu-linux/>
+
+<https://wiki.parabola.nu/Convert_a_single_drive_system_to_RAID#Make_file_systems>
+
+<https://wiki.archlinux.org/title/Convert_a_single_drive_system_to_RAID>
+
+<https://www.howtoforge.com/how-to-set-up-software-raid1-on-a-running-system-incl-grub2-configuration-debian-squeeze-p2>
+
+<https://www.sysadmin.in.ua/ru/2013/05/10/nastrojka-programmnogo-raid1-na-rabotayushhej-sisteme-linux-debian-ispolzuya-zagruzchik-grub2/>
 
 ## Підсумки
 
